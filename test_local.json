@@ -1,0 +1,20 @@
+[
+  {
+    "DNS_Name": "DKIM (1024)",
+    "Type": "TXT",
+    "Host": "mgtr._domainkey.kotak",
+    "Value": "PASTE_1024_DKIM_KEY"
+  },
+  {
+    "DNS_Name": "DMARC",
+    "Type": "TXT",
+    "Host": "_dmarc.kotak",
+    "Value": "v=DMARC1; p=none"
+  },
+  {
+    "DNS_Name": "CNAME",
+    "Type": "CNAME",
+    "Host": "krxemails.kotak.co.in",
+    "Value": "emtransbounce.fcsend.in"
+  }
+]

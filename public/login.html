@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<!-- Author: Dharshan B (Emp Code: IC1227) -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Back - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #ec4899;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --input-border: rgba(255, 255, 255, 0.08);
+            --input-focus: rgba(99, 102, 241, 0.5);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, #2e1065, var(--bg-color)), 
+                        radial-gradient(circle at bottom right, #1e1b4b, var(--bg-color));
+            background-blend-mode: screen;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Abstract shapes in background */
+        .shape {
+            position: absolute;
+            filter: blur(80px);
+            opacity: 0.5;
+            z-index: 0;
+            animation: float 10s ease-in-out infinite alternate;
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            top: -50px;
+            left: -50px;
+            border-radius: 50%;
+        }
+
+        .shape-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--secondary);
+            bottom: -100px;
+            right: -100px;
+            border-radius: 50%;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.1); }
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            padding: 48px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            z-index: 10;
+            position: relative;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-header h1 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-header p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #cbd5e1;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--input-focus);
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        .forgot-password {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .remember-me input {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .forgot-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: #a5b4fc;
+        }
+
+        .enterprise-notice {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fee2e2;
+            background: rgba(220, 38, 38, 0.25);
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid rgba(239, 68, 68, 0.6);
+            line-height: 1.5;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+        }
+        .enterprise-notice strong {
+            color: #f87171;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Spinner for login loading state */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading .spinner {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background glowing shapes -->
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+
+    <div class="login-card">
+        <div class="login-header">
+            <div style="font-size: 38px; font-weight: 900; letter-spacing: 2px; margin-bottom: 24px; text-transform: uppercase;">
+                <span style="background: linear-gradient(135deg, #f97316, #ea580c); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Karix</span>
+            </div>
+            <h1>Welcome back</h1>
+            <p>Please enter your enterprise credentials.</p>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="email" id="email" placeholder="name@company.com" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+
+            <div class="forgot-password">
+                <label class="remember-me">
+                    <input type="checkbox"> Remember me
+                </label>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                <span class="spinner"></span>
+                <span class="btn-text">Sign in</span>
+            </button>
+        </form>
+
+        <div class="enterprise-notice">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: text-bottom;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <strong>Access Restricted</strong><br/>
+            This portal is strictly for enterprise use only. Commercial access or unauthorized login attempts are monitored and prohibited.
+        </div>
+    </div>
+
+    <script>
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const btn = document.getElementById('loginBtn');
+            const form = document.getElementById('loginForm');
+            
+            const validUsers = [
+                { email: "dharshan.b@karix.com", pass: "8523021189" },
+                { email: "rohanreddy.alamareddy@karix.com", pass: "8688112561" }
+            ];
+
+            // Check if entered credentials match any hardcoded users
+            const isValid = validUsers.some(u => u.email.toLowerCase() === email.toLowerCase() && u.pass === password);
+
+            // Add loading state
+            btn.classList.add('loading');
+            btn.querySelector('.btn-text').textContent = 'Signing in...';
+            btn.style.pointerEvents = 'none';
+
+            // Simulate network request 
+            setTimeout(() => {
+                btn.classList.remove('loading');
+                
+                if (isValid) {
+                    btn.querySelector('.btn-text').textContent = 'Success!';
+                    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    
+                    // Redirect to the DNS Records Generator
+                    setTimeout(() => {
+                        localStorage.setItem('authSession', Date.now());
+                        localStorage.setItem('authUser', email);
+                        window.location.href = '/index.html';
+                    }, 800);
+                } else {
+                    alert('Invalid active email or password!');
+                    btn.querySelector('.btn-text').textContent = 'Sign in';
+                    btn.style.pointerEvents = 'auto';
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

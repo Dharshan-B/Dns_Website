@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<!-- Author: Dharshan B (Emp Code: IC1227) -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Record Generator</title>
+    <script>
+        function checkSession() {
+            const session = localStorage.getItem('authSession');
+            if (!session) {
+                window.location.href = '/login.html';
+                return;
+            }
+            const now = Date.now();
+            const thirtyMins = 30 * 60 * 1000;
+            if (now - parseInt(session) > thirtyMins) {
+                alert('Session expired. Please login again.');
+                localStorage.removeItem('authSession');
+                window.location.href = '/login.html';
+            }
+        }
+        checkSession();
+        setInterval(checkSession, 60000);
+
+        function logout() {
+            localStorage.removeItem('authSession');
+            window.location.href = '/login.html';
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --secondary: #10b981;
+            --secondary-hover: #059669;
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --input-border: rgba(255, 255, 255, 0.1);
+            --input-focus: rgba(59, 130, 246, 0.5);
+            --toast-bg: rgba(16, 185, 129, 0.9);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b, var(--bg-color));
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 20px 40px;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar span {
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* LAYOUT */
+        .main {
+            display: flex;
+            padding: 40px;
+            gap: 30px;
+            flex: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: calc(100% - 80px);
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .form-panel {
+            flex: 0 0 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: fit-content;
+        }
+
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #e2e8f0;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        input[type="text"], 
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input[type="text"]:focus, 
+        select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--input-focus);
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        /* Checkbox styling */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: var(--input-bg);
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid var(--input-border);
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: #cbd5e1;
+        }
+
+        .checkbox-item input {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #64748b;
+            border-radius: 4px;
+            margin-right: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .checkbox-item input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .checkbox-item input:checked::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 2px;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .checkbox-item input:focus-visible {
+            box-shadow: 0 0 0 3px var(--input-focus);
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .preview-btn {
+            background: linear-gradient(to right, var(--primary), #4f46e5);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .preview-btn:hover {
+            background: linear-gradient(to right, var(--primary-hover), #4338ca);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .excel-btn {
+            background: linear-gradient(to right, var(--secondary), #0d9488);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .excel-btn:hover {
+            background: linear-gradient(to right, var(--secondary-hover), #0f766e);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Table Design */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: rgba(15, 23, 42, 0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 16px;
+            font-weight: 600;
+            color: #e2e8f0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+            color: #cbd5e1;
+            word-break: break-all;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .dns-value {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            background: rgba(0,0,0,0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #93c5fd;
+            display: inline-block;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--card-border);
+            color: #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: -50px;
+            right: 40px;
+            background: var(--toast-bg);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: bottom 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        #toast.show {
+            bottom: 40px;
+        }
+
+        #toast svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2); 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3); 
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main {
+                flex-direction: column;
+                padding: 20px;
+                width: calc(100% - 40px);
+            }
+            .form-panel {
+                flex: none;
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="navbar-brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#blue-purple)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <defs>
+                <linearGradient id="blue-purple" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#60a5fa" />
+                    <stop offset="100%" stop-color="#a855f7" />
+                </linearGradient>
+            </defs>
+            <path d="M2 12h4l3-9 5 18 3-9h5"/>
+        </svg>
+        <span>DNS Gen</span>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+        <button onclick="toggleHistoryModal(true)" style="background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); padding: 8px 16px; border-radius: 8px; font-family: inherit; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            History
+        </button>
+        <button onclick="logout()" style="background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); padding: 8px 16px; border-radius: 8px; font-family: inherit; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s;">
+            Logout
+        </button>
+    </div>
+</div>
+
+<div class="main">
+    <!-- FORM PANEL -->
+    <div class="card form-panel">
+        <div class="section-title">Configuration</div>
+        
+        <div class="form-group">
+            <label for="domain">Domain Name</label>
+            <input type="text" id="domain" placeholder="e.g. tracking.example.com" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+            <label for="domainType">Domain Type</label>
+            <select id="domainType">
+                <option value="root">Root Domain (e.g. kotak.com)</option>
+                <option value="sub">Subdomain (e.g. tracking.kotak.com)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>SPF Includes</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" value="zsend.in">
+                    zsend.in
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="trsmtp.com">
+                    trsmtp.com
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" value="nlsmtp.com">
+                    nlsmtp.com
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="dkim">DKIM Key Size</label>
+            <select id="dkim">
+                <option value="1024">1024-bit (Standard)</option>
+                <option value="2048">2048-bit (High Security)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="dmarc">DMARC Policy</label>
+            <select id="dmarc">
+                <option value="none">none (Monitoring)</option>
+                <option value="quarantine">quarantine</option>
+                <option value="reject">reject</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="postmaster">Google Postmaster Hash (Optional)</label>
+            <input type="text" id="postmaster" placeholder="google-site-verification=..." autocomplete="off">
+        </div>
+
+        <div class="btn-group">
+            <button class="btn preview-btn" onclick="preview()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                Preview
+            </button>
+            <button class="btn excel-btn" onclick="generate()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                Export Excel
+            </button>
+        </div>
+    </div>
+
+    <!-- PREVIEW PANEL -->
+    <div class="card preview-panel">
+        <div class="section-title">Generated DNS Records</div>
+        <div class="table-container">
+            <table id="previewTable">
+                <thead>
+                    <tr>
+                        <th style="width:15%">Record</th>
+                        <th style="width:10%">Type</th>
+                        <th style="width:25%">Host</th>
+                        <th style="width:40%">Value</th>
+                        <th style="width:10%; text-align:center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                            <div>Enter your domain details and click Preview to generate records.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="toast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <span>Copied to clipboard!</span>
+</div>
+
+<!-- HISTORY MODAL -->
+<div id="historyModal" class="modal">
+    <div class="card modal-content" onclick="event.stopPropagation()">
+        <span class="close-modal" onclick="toggleHistoryModal(false)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </span>
+        <div class="section-title">Export History Logs</div>
+        <div class="table-container">
+            <table id="historyTable">
+                <thead>
+                    <tr>
+                        <th style="width:25%">User</th>
+                        <th style="width:35%">Domain</th>
+                        <th style="width:40%">Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- History rows injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function getFormData() {
+    let domain = document.getElementById("domain").value.trim().toLowerCase();
+    let domainType = document.getElementById("domainType").value;
+    let dkim = document.getElementById("dkim").value;
+    let dmarc = document.getElementById("dmarc").value;
+    let postmaster = document.getElementById("postmaster").value.trim();
+
+    let spf = [];
+    document.querySelectorAll(".checkbox-group input[type=checkbox]:checked").forEach(el => {
+        spf.push(el.value);
+    });
+
+    return {domain, domainType, spf, dkim, dmarc, postmaster};
+}
+
+function preview() {
+    const data = getFormData();
+    if (!data.domain) {
+        alert("Please enter a domain name.");
+        return;
+    }
+
+    const previewBtn = document.querySelector('.preview-btn');
+    const originalText = previewBtn.innerHTML;
+    previewBtn.innerHTML = '<svg class="spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Loading...';
+    
+    // Add simple CSS animation for spinner dynamically
+    if (!document.getElementById('spinner-style')) {
+        const style = document.createElement('style');
+        style.id = 'spinner-style';
+        style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } } .spinner { animation: spin 1s linear infinite; }`;
+        document.head.appendChild(style);
+    }
+
+    fetch('/preview', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(records => {
+        let tbody = document.querySelector("#previewTable tbody");
+        tbody.innerHTML = "";
+        
+        if(records.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        <div>No records generated. Check your input parameters.</div>
+                    </td>
+                </tr>
+            `;
+            previewBtn.innerHTML = originalText;
+            return;
+        }
+
+        records.forEach(r => {
+            let row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${escapeHtml(r.DNS_Name)}</strong></td>
+                <td><span style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: 600;">${escapeHtml(r.Type)}</span></td>
+                <td>${escapeHtml(r.Host)}</td>
+                <td><div class="dns-value">${escapeHtml(r.Value)}</div></td>
+                <td style="text-align:center;">
+                    <button class="copy-btn" onclick="copyText('${escapeHtml(r.Value).replace(/'/g, "\\'")}')">Copy</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+        previewBtn.innerHTML = originalText;
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error connecting to server. Is it running?");
+        previewBtn.innerHTML = originalText;
+    });
+}
+
+function generate() {
+    const data = getFormData();
+    if (!data.domain) {
+        alert("Please enter a domain name before exporting.");
+        return;
+    }
+
+    const user = localStorage.getItem('authUser') || 'Anonymous User';
+    
+    fetch('/generate-excel', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({...data, user})
+    })
+    .then(res => res.blob())
+    .then(blob => {
+        let url = window.URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        const domainClean = data.domain.replace(/\./g, '_');
+        a.download = `${domainClean}_dns_records.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error generating Excel file.");
+    });
+}
+
+function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(showToast);
+    } else {
+        // Fallback
+        let textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showToast();
+        } catch (err) {
+            console.error('Fallback: Oops, unable to copy', err);
+        }
+        document.body.removeChild(textArea);
+    }
+}
+
+let toastTimeout;
+function showToast() {
+    let toast = document.getElementById("toast");
+    toast.classList.add("show");
+    
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2500);
+}
+
+function escapeHtml(unsafe) {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+}
+
+// Add enter key support for the form to trigger preview
+document.getElementById('domain').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        preview();
+    }
+});
+
+// ================= HISTORY MODAL LOGIC =================
+function toggleHistoryModal(show) {
+    const modal = document.getElementById('historyModal');
+    if (show) {
+        modal.classList.add('show');
+        fetchHistory();
+    } else {
+        modal.classList.remove('show');
+    }
+}
+
+// Close modal when clicking outside content
+document.getElementById('historyModal').addEventListener('click', function() {
+    toggleHistoryModal(false);
+});
+
+function fetchHistory() {
+    const tbody = document.querySelector("#historyTable tbody");
+    tbody.innerHTML = `<tr><td colspan="3" class="empty-state">Loading history...</td></tr>`;
+
+    fetch('/history')
+    .then(res => res.json())
+    .then(history => {
+        tbody.innerHTML = "";
+        if (history.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="empty-state">No export history found.</td></tr>`;
+            return;
+        }
+
+        history.forEach(item => {
+            const date = new Date(item.timestamp).toLocaleString();
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="color: #60a5fa; font-weight: 500;">${escapeHtml(item.user)}</td>
+                <td>${escapeHtml(item.domain)}</td>
+                <td style="color: var(--text-muted); font-size: 13px;">${date}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    })
+    .catch(err => {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="3" class="empty-state" style="color: #f87171;">Error loading history.</td></tr>`;
+    });
+}
+</script>
+
+</body>
+</html>
