@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/login",
+      "destination": "/server.js"
+    },
+    {
+      "source": "/preview",
+      "destination": "/server.js"
+    },
+    {
+      "source": "/generate-excel",
+      "destination": "/server.js"
+    },
+    {
+      "source": "/history",
+      "destination": "/server.js"
+    }
+  ]
+}

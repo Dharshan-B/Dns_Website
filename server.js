@@ -10,6 +10,23 @@ const PORT = 3000;
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+// ================= AUTHENTICATION =================
+const validUsers = [
+    { email: "dharshan.b@karix.com", pass: "8523021189" },
+    { email: "rohanreddy.alamareddy@karix.com", pass: "8688112561" }
+];
+
+app.post('/login', (req, res) => {
+    const { email, password } = req.body;
+    const user = validUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.pass === password);
+    
+    if (user) {
+        res.json({ success: true, email: user.email });
+    } else {
+        res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+});
+
 
 // ================= DOMAIN PARSER =================
 function parseDomain(domain, type) {
@@ -193,7 +210,7 @@ app.post('/generate-excel', async (req, res) => {
 
 // ================= HISTORY =================
 function logExportHistory(user, domain) {
-    const historyFile = 'history.json';
+    const historyFile = process.env.VERCEL ? '/tmp/history.json' : 'history.json';
     let history = [];
     if (fs.existsSync(historyFile)) {
         try {
@@ -209,7 +226,7 @@ function logExportHistory(user, domain) {
 }
 
 app.get('/history', (req, res) => {
-    const historyFile = 'history.json';
+    const historyFile = process.env.VERCEL ? '/tmp/history.json' : 'history.json';
     let history = [];
     if (fs.existsSync(historyFile)) {
         try {
@@ -221,6 +238,9 @@ app.get('/history', (req, res) => {
 });
 
 // ================= START SERVER =================
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-});
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Server running at http://localhost:${PORT}`);
+    });
+}
+module.exports = app;

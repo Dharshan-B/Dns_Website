@@ -310,39 +310,44 @@
             const btn = document.getElementById('loginBtn');
             const form = document.getElementById('loginForm');
             
-            const validUsers = [
-                { email: "dharshan.b@karix.com", pass: "8523021189" },
-                { email: "rohanreddy.alamareddy@karix.com", pass: "8688112561" }
-            ];
-
-            // Check if entered credentials match any hardcoded users
-            const isValid = validUsers.some(u => u.email.toLowerCase() === email.toLowerCase() && u.pass === password);
-
             // Add loading state
             btn.classList.add('loading');
             btn.querySelector('.btn-text').textContent = 'Signing in...';
             btn.style.pointerEvents = 'none';
 
-            // Simulate network request 
-            setTimeout(() => {
+            // Send login request to the backend
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            })
+            .then(res => res.json())
+            .then(data => {
                 btn.classList.remove('loading');
                 
-                if (isValid) {
+                if (data.success) {
                     btn.querySelector('.btn-text').textContent = 'Success!';
                     btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
                     
                     // Redirect to the DNS Records Generator
                     setTimeout(() => {
                         localStorage.setItem('authSession', Date.now());
-                        localStorage.setItem('authUser', email);
+                        localStorage.setItem('authUser', data.email);
                         window.location.href = '/index.html';
                     }, 800);
                 } else {
-                    alert('Invalid active email or password!');
+                    alert(data.message || 'Invalid active email or password!');
                     btn.querySelector('.btn-text').textContent = 'Sign in';
                     btn.style.pointerEvents = 'auto';
                 }
-            }, 1000);
+            })
+            .catch(err => {
+                console.error(err);
+                btn.classList.remove('loading');
+                alert('Error connecting to the authentication server.');
+                btn.querySelector('.btn-text').textContent = 'Sign in';
+                btn.style.pointerEvents = 'auto';
+            });
         }
     </script>
 </body>
