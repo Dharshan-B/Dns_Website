@@ -1,0 +1,17 @@
+[
+  {
+    "user": "dharshan.b@karix.com",
+    "domain": "test-domain.com",
+    "timestamp": "2026-04-06T05:45:12.015Z"
+  },
+  {
+    "user": "dharshan.b@karix.com",
+    "domain": "dharshan.com",
+    "timestamp": "2026-04-06T05:51:58.686Z"
+  },
+  {
+    "user": "dharshan.b@karix.com",
+    "domain": "karix.com",
+    "timestamp": "2026-05-08T12:50:48.635Z"
+  }
+]
